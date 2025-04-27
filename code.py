@@ -14,4 +14,17 @@ def send_pin(pin):
         "Connection: close\r\n"
         "\r\n"
         f"{body}"
-    ) 
+    )
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        s.sendall(request.encode())
+
+        response = b""
+        while True:
+            data = s.recv(4096)
+            if not data:
+                break
+            response += data
+
+    return response.decode()
